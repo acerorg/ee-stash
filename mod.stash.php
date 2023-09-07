@@ -45,17 +45,31 @@ class Stash {
     private $_list_row_delimiter = '|&|';
     private $_list_row_glue = '|=|';
     private $_list_null = '__NULL__';
-    private $_embed_nested = FALSE;
-    private $_nocache_suffix = ':nocache';
+    private bool $_embed_nested = FALSE;
+    private string $_nocache_suffix = ':nocache';
+    private bool $stash_cookie_enabled;
+    private int $default_refresh = 0;
 
-    private static $_nocache = TRUE;
-    private static $_nocache_prefixes = array('stash');
-    private static $_is_human = TRUE;
+    private static bool $_nocache = TRUE;
+    private static array $_nocache_prefixes = array('stash');
+    private static bool $_is_human = TRUE;
     private static $_cache;
 
     /*
      * Constructor
      */
+    private bool $prune;
+    private float $prune_probability;
+    private int $invalidation_period;
+    /**
+     * @var array|string[]
+     */
+    private array $file_extensions;
+    private bool $parse_if_in;
+    private bool $include_query_str;
+    private $_key2sort;
+    private $nocache_id;
+
     public function __construct($calling_from_hook = FALSE)
     {
         // load dependencies - make sure the package path is available in case the class is being called statically
@@ -439,7 +453,7 @@ class Stash {
         $scope  = strtolower(ee()->TMPL->fetch_param('scope', $this->default_scope)); // local|user|site
         
         // do we want this tag to return it's tagdata? (default: no)
-        $output = (bool) preg_match('/1|on|yes|y/i', ee()->TMPL->fetch_param('output'));
+        $output = !is_null(get_bool_from_string(ee()->TMPL->fetch_param('output'))) && get_bool_from_string(ee()->TMPL->fetch_param('output'));
 
         // do we want to parse early global variables in variables retrieved from the cache
         
@@ -1425,7 +1439,7 @@ class Stash {
      * @param $string a string to test
      * @return integer
      */
-    public function not_empty($string = NULL)
+    public function not_empty(string|null $string = NULL)
     {
         /* Sample use
         ---------------------------------------------------------
@@ -1453,6 +1467,8 @@ class Stash {
         {
             $test = $this->_run_tag('get', array('name', 'type', 'scope', 'context'));
         }
+
+        $test = (string)$test;
         
         $value  = str_replace( array("\t", "\n", "\r", "\0", "\x0B"), '', trim($test));
         return empty( $value ) ? 0 : 1;
