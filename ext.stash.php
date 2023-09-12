@@ -451,9 +451,10 @@ class Stash_ext {
                         {
                             // call the tag
                             $out = $s->{$tag['method']}();
+                            $out = is_null($out) ? '' : $out;
                             
                             // replace the output of our tag into the template placeholder
-                            $template = str_replace(LD.$placeholder.RD, $out, $template);    
+                            $template = str_replace(LD.$placeholder.RD, $out, $template);
                         }
 
                         // remove the placeholder from the cache so we don't iterate over it in future calls of this hook
