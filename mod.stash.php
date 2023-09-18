@@ -54,22 +54,23 @@ class Stash {
     private static array $_nocache_prefixes = array('stash');
     private static bool $_is_human = TRUE;
     private static $_cache;
+    
+    protected bool $prune;
+    protected float $prune_probability;
+    protected int $invalidation_period;
+    /**
+     * @var array|string[]
+     */
+    protected array $file_extensions;
+    protected bool $parse_if_in;
+    protected bool $include_query_str;
+    protected $_key2sort;
+    protected $nocache_id;
+    protected $pagination;
 
     /*
      * Constructor
      */
-    private bool $prune;
-    private float $prune_probability;
-    private int $invalidation_period;
-    /**
-     * @var array|string[]
-     */
-    private array $file_extensions;
-    private bool $parse_if_in;
-    private bool $include_query_str;
-    private $_key2sort;
-    private $nocache_id;
-
     public function __construct($calling_from_hook = FALSE)
     {
         // load dependencies - make sure the package path is available in case the class is being called statically
